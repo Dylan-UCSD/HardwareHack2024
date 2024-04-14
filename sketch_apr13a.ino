@@ -10,6 +10,9 @@
 #endif 
 #include <math.h>
 #include <WifiLocation.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
 
 class Latlon{
   public:
@@ -19,11 +22,14 @@ class Latlon{
   
 };
 
-
-const char* googleApiKey = "google key";
-
+const char* googleApiKey = "API_KEY";
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+/*
+ *  lcd.setCursor(0, 0);               // Set the cursor to the first column and first row
+    lcd.print("    Team Rocket   ");     // Print some text
+ */
 WifiLocation location(googleApiKey);
-Latlon home = Latlon(0.0,0.0);
+Latlon home = Latlon(32.888132,-117.242271);
 Latlon user = Latlon(0.0,0.0);
 const Latlon seventh = Latlon(32.888132,-117.242271);
 const Latlon LA = Latlon(34.0549,118.2426);
@@ -66,7 +72,18 @@ void updateDirections(double h_lat,double h_lon,double u_lat,double u_lon){
     NESW[1] = false;
     NESW[3] = true;
   }
-  
+  lcd.setCursor(0,0);
+  if(NESW[0]){
+    lcd.print("North"); 
+  }else{
+    lcd.print("South");
+  }
+  lcd.setCursor(0,1);
+  if(NESW[1]){
+    lcd.print("East"); 
+  }else{
+    lcd.print("West");
+  }
 
 }
 
@@ -89,7 +106,6 @@ bool ping(){
     Serial.println("Accuracy: " + String(loc.accuracy));
     user = Latlon(loc.lat, loc.lon);
     updateDirections(home.lat, home.lon, user.lat, user.lon);
-    home = seventh;
     Serial.println("NESW: " + String(NESW[0]) + String(NESW[1]) + String(NESW[2]) + String(NESW[3]));
     return true;
 }
@@ -98,7 +114,9 @@ bool ping(){
 
 void setup() {
       Serial.begin(115200);
-      Serial.print("attempting to connect to wifi");
+      lcd.init();                       // Initialize the LCD
+      lcd.backlight();                  // Turn on the backlight
+      lcd.clear();                      // Clear the LCD screen
     // Connect to WPA/WPA2 network
 #ifdef ARDUINO_ARCH_ESP32
     WiFi.mode(WIFI_MODE_STA);
@@ -107,7 +125,6 @@ void setup() {
     WiFi.mode(WIFI_STA);
 #endif
     WiFi.begin("UCSD-GUEST");
-
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print("Attempting to connect to UCSD GUEST");
         // wait 5 seconds for connection:
@@ -116,6 +133,7 @@ void setup() {
         delay(500);
     }
     location_t loc = location.getGeoFromWiFi();
+
     Serial.println("Location request data");
     Serial.println(location.getSurroundingWiFiJson());
     Serial.println("Latitude: " + String(loc.lat, 7));
@@ -123,12 +141,23 @@ void setup() {
     Serial.println("Accuracy: " + String(loc.accuracy));
     user = Latlon(loc.lat, loc.lon);
     updateDirections(home.lat, home.lon, user.lat, user.lon);
-    home = seventh;
     Serial.println("NESW: " + String(NESW[0]) + String(NESW[1]) + String(NESW[2]) + String(NESW[3]));
 }
 
 void loop() {
-  delay(30000);
+  Serial.println("waiting 30 more seconds");
+  delay(5000);
+  Serial.println("waiting 25 more seconds");
+  delay(5000);
+  Serial.println("waiting 20 more seconds");
+  delay(5000);
+  Serial.println("waiting 15 more seconds");
+  delay(5000);
+  Serial.println("waiting 10 more seconds");
+  delay(5000);
+  Serial.println("waiting 5 more seconds");
+  delay(5000);
   ping();
+  
 
 }
